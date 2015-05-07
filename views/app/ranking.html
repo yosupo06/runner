@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Login</title>
+	</head>
+	<body>
+		<h1>Hello Ranking!</h1>
+		<thead>
+			<tr>
+				<th>#</th>
+				<th>Point</th>
+				<th>Name</th>
+				<th>Comment</th>
+			</tr>
+		</thead>
+		{{range $idx, $e := $}}
+		<tbody>
+			<tr>
+				<td>{{$idx}}</td>
+				<td>{{$e.point}}</td>
+				<td>{{$e.comment}}</td>
+				<td>{{$e.comment}}</td>
+			</tr>
+		</tbody>
+		{{end}}
+	</body>
+</html>

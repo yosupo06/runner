@@ -1,20 +1,27 @@
 package auth
 
 import (
+	"bytes"
 	"crypto/rand"
+	"crypto/sha256"
 	"errors"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"math/big"
 	"net/http"
 	"strconv"
+	"sync"
 )
 
 type User struct {
 	Id    string
 	Token string
-	Pass  string //must be salted
+	Pass  []byte //must be salted
 }
+
+const salt = "yazawanikoniko"
+
+var aesKey = []byte("nisikinomakimaki")
 
 func init() {
 	ses, err := mgo.Dial("localhost")
@@ -41,6 +48,11 @@ func makeToken() string {
 	return r
 }
 
+func hash(pass string) []byte {
+	a := sha256.Sum256([]byte(salt + pass))
+	return a[:]
+}
+
 func AddUser(id string, pass string) error {
 	ses, err := mgo.Dial("localhost")
 	if err != nil {
@@ -55,7 +67,7 @@ func AddUser(id string, pass string) error {
 	if co != 0 {
 		return errors.New("このIDはもう使われています")
 	}
-	c.Insert(User{id, makeToken(), pass})
+	c.Insert(User{id, makeToken(), hash(pass)})
 	return nil
 }
 
@@ -80,7 +92,7 @@ func AuthPass(id string, pass string) bool {
 	if !ok {
 		return false
 	}
-	return u.Pass == pass
+	return bytes.Equal(u.Pass, hash(pass))
 }
 
 func AuthToken(id string, token string) bool {
@@ -94,11 +106,20 @@ func AuthToken(id string, token string) bool {
 	return true
 }
 
+var (
+	lm    = new(sync.Mutex)
+	login = make(map[string]string)
+)
+
 func SetCookie(rw http.ResponseWriter, id string) {
+	a := makeToken()
+	lm.Lock()
+	login[a] = id
+	lm.Unlock()
 	http.SetCookie(rw,
 		&http.Cookie{
 			Name:   "id",
-			Value:  id,
+			Value:  a,
 			MaxAge: 60 * 60 * 24 * 14,
 		})
 }
@@ -112,9 +133,15 @@ func DelCookie(rw http.ResponseWriter) {
 }
 
 func GetCookie(req *http.Request) (*User, bool) {
-	id, err := req.Cookie("id")
+	a, err := req.Cookie("id")
 	if err != nil {
 		return nil, false
 	}
-	return GetUser(id.Value)
+	lm.Lock()
+	id, ok := login[a.Value]
+	lm.Unlock()
+	if !ok {
+		return nil, false
+	}
+	return GetUser(id)
 }

@@ -3,15 +3,30 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Yosupo</title>
+		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/grids-responsive-min.css">
+		<link rel="stylesheet" href="/css/main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 	</head>
 	<body>
-		<h1>Hello world!</h1>
-		{{if .}}
-		<h2>Your ID = {{.Id}}</h2>
-		<a href="logout.html">Logout</a>
-		{{else}}
-		<a href="register.html">Register</a>
-		<a href="login.html">Login</a>
-		{{end}}		
+		<header>
+			<div class="pure-menu pure-menu-horizontal">
+				<span class="pure-menu-heading">Yosupo</span>
+				{{if .}}
+				<span class="pure-menu-heading">{{.Id}}</span>
+				{{else}}
+				<a href="register.html" class="pure-menu-heading pure-menu-link">Register</a>
+				{{end}}
+				{{if .}}
+				<a href="logout.html" class="pure-menu-heading pure-menu-link">Log out</a>
+				{{else}}
+				<a href="login.html" class="pure-menu-heading pure-menu-link">Log in</a>
+				{{end}}
+			</div>
+		</header>
+		<section class="content">
+			<p>5/10 or 17の21時から2時間の予定です まだ内側は何も出来ていないので無断で延長する可能性があります</p>
+			<a href="problem.html">Problem</a>
+		</section>
 	</body>
 </html>

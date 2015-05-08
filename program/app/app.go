@@ -1,15 +1,25 @@
 package app
 
 import (
+	"fmt"
 	"github.com/yosupo06/runner/program/auth"
 	"github.com/yosupo06/runner/program/rank"
 	"go/build"
 	"html/template"
 	"net/http"
+	"time"
 )
 
-var basePath = build.Default.GOPATH + "/src/github.com/yosupo06/runner/"
-var viewPath = basePath + "views/app/"
+var (
+	basePath = build.Default.GOPATH + "/src/github.com/yosupo06/runner/"
+	viewPath = basePath + "views/app/"
+)
+
+var tp = make(map[string]*template.Template)
+
+func init() {
+
+}
 
 func Index(rw http.ResponseWriter, req *http.Request) {
 	tp, err := template.ParseFiles(viewPath + "index.html")
@@ -64,12 +74,38 @@ func Logout(rw http.ResponseWriter, req *http.Request) {
 	http.Redirect(rw, req, "/index.html", http.StatusFound)
 }
 
-func Problem(rw http.ResponseWriter, req *http.Request) {
+var Start time.Time
 
+func Problem(rw http.ResponseWriter, req *http.Request) {
+	if time.Now().Before(Start) {
+		http.Error(rw, "まだコンテスト開始前です", http.StatusForbidden)
+		return
+	}
+	tp, _ := template.ParseFiles(viewPath + "problem.html")
+	u, _ := auth.GetCookie(req)
+	tp.Execute(rw, u)
 }
 
 func Ranking(rw http.ResponseWriter, req *http.Request) {
+	if time.Now().Before(Start) {
+		NotFound(rw, req)
+		return
+	}
 	tp, _ := template.ParseFiles(viewPath + "ranking.html")
 	r := rank.GetRanking()
 	tp.Execute(rw, r)
+}
+
+func History(rw http.ResponseWriter, req *http.Request) {
+	if time.Now().Before(Start) {
+		NotFound(rw, req)
+		return
+	}
+	tp, _ := template.ParseFiles(viewPath + "history.html")
+	h := GetHistory()
+	tp.Execute(rw, h)
+}
+
+func NotFound(rw http.ResponseWriter, req *http.Request) {
+	fmt.Fprintln(rw, "404")
 }

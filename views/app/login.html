@@ -3,19 +3,35 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Login</title>
+		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/grids-responsive-min.css">
+		<link rel="stylesheet" href="/css/main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 	</head>
 	<body>
-		<h1>Hello Login!</h1>
-		{{if .Error}}
-		<h1>{{.Error}}</h1>
-		{{end}}
-		<form method="post">
-			<input type="hidden" name="submit" value="on">
-			
-			<input type="text" name="id">
-			<input type="text" name="pass">
-			
-			<button type="submit">Login</button>
-		</form>
+		<header>
+			<div class="pure-menu pure-menu-horizontal">
+				<a href="/index.html" class="pure-menu-heading pure-menu-link">Yosupo</a>
+				<span class="pure-menu-heading">Login</span>
+			</div>
+		</header>
+		<section class="content">
+			<form action="#" method="post" class="pure-form pure-form-aligned">
+				<fieldset>
+					<input type="hidden" name="submit" value="on">
+					<div class="pure-control-group">
+						<label for="id">User ID</label>					
+						<input type="text" name="id" id="id">
+					</div>
+					<div class="pure-control-group">
+						<label for="pass">Password</label>
+						<input type="text" name="pass" id="pass">
+					</div>
+					<div class="pure-controls">
+						<input type="submit" value="Login">
+					</div>
+				</fieldset>
+			</form>
+		</section>
 	</body>
 </html>

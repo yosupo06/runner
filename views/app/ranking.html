@@ -2,27 +2,43 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>Login</title>
+		<title>Ranking</title>
+		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/grids-responsive-min.css">
+		<link rel="stylesheet" href="/css/main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 	</head>
 	<body>
-		<h1>Hello Ranking!</h1>
-		<thead>
-			<tr>
-				<th>#</th>
-				<th>Point</th>
-				<th>Name</th>
-				<th>Comment</th>
-			</tr>
-		</thead>
-		{{range $idx, $e := $}}
-		<tbody>
-			<tr>
-				<td>{{$idx}}</td>
-				<td>{{$e.point}}</td>
-				<td>{{$e.comment}}</td>
-				<td>{{$e.comment}}</td>
-			</tr>
-		</tbody>
-		{{end}}
+		<header>
+			<div class="pure-menu pure-menu-horizontal">
+				<a href="/index.html" class="pure-menu-heading pure-menu-link">Yosupo</a>
+				<a href="/problem.html" class="pure-menu-heading pure-menu-link">Problem</a>
+				<span class="pure-menu-heading">Ranking</span>
+				<a href="/history.html" class="pure-menu-heading pure-menu-link">History</a>
+			</div>
+		</header>
+		<section class="content">
+			<h1>Hello Ranking!</h1>
+			<table>
+				<thead>
+					<tr>
+						<th>#</th>
+						<th>Point</th>
+						<th>Name</th>
+						<th>Comment</th>
+					</tr>
+				</thead>
+				{{range $idx, $e := $}}
+				<tbody>
+					<tr>
+						<td>{{$idx}}</td>
+						<td>{{$e.Point}}</td>
+						<td>{{$e.Id}}</td>
+						<td>{{$e.Comment}}</td>
+					</tr>
+				</tbody>
+				{{end}}
+			</table>
+		</section>
 	</body>
 </html>

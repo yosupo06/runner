@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>History</title>
+		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/grids-responsive-min.css">
+		<link rel="stylesheet" href="/css/main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<header>
+			<div class="pure-menu pure-menu-horizontal">
+				<a href="/index.html" class="pure-menu-heading pure-menu-link">Yosupo</a>
+				<a href="problem.html" class="pure-menu-heading pure-menu-link">Problem</a>
+				<a href="ranking.html" class="pure-menu-heading pure-menu-link">Ranking</a>
+				<span class="pure-menu-heading">History</span>
+			</div>
+		</header>
+		<table>
+			<thead>
+				<tr>
+					<th>#</th>
+					<th>Rabit</th>
+					<th>Point1</th>
+					<th>Point2</th>
+					<th>Point3</th>
+					<th>Point4</th>
+					<th>Point5</th>
+				</tr>
+			</thead>
+			{{range $idx, $h := $}}
+			<tbody>
+				<tr>
+					<td>{{$idx}}</td>
+					<td>{{$h.Rabit}}</td>				
+					{{range $i := $h.Points}}
+					<td>{{$i}}</td>
+					{{end}}
+				</tr>
+			</tbody>
+			{{end}}
+		</table>
+	</body>
+</html>

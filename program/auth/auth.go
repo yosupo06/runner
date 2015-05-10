@@ -22,13 +22,15 @@ type User struct {
 const salt = "yazawanikoniko"
 
 var aesKey = []byte("nisikinomakimaki")
+var session *mgo.Session
 
 func init() {
 	ses, err := mgo.Dial("localhost")
+	session = ses
 	if err != nil {
 		panic(err)
 	}
-	defer ses.Close()
+	ses.SetMode(mgo.Monotonic, true)
 	c := ses.DB("runner").C("user")
 	c.EnsureIndex(mgo.Index{
 		Key:    []string{"id"},
@@ -54,15 +56,12 @@ func hash(pass string) []byte {
 }
 
 func AddUser(id string, pass string) error {
-	ses, err := mgo.Dial("localhost")
-	if err != nil {
-		panic(err)
-	}
+	ses := session.Copy()
 	defer ses.Close()
 	c := ses.DB("runner").C("user")
 	co, err := c.Find(bson.M{"id": id}).Count()
 	if err != nil {
-		panic(err)
+		return err
 	}
 	if co != 0 {
 		return errors.New("このIDはもう使われています")
@@ -72,15 +71,12 @@ func AddUser(id string, pass string) error {
 }
 
 func GetUser(id string) (*User, bool) {
-	ses, err := mgo.Dial("localhost")
-	if err != nil {
-		panic(err)
-	}
+	ses := session.Copy()
 	defer ses.Close()
 
 	c := ses.DB("runner").C("user")
 	var u User
-	err = c.Find(bson.M{"id": id}).One(&u)
+	err := c.Find(bson.M{"id": id}).One(&u)
 	if err != nil {
 		return nil, false
 	}

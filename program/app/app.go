@@ -8,6 +8,7 @@ import (
 	"html/template"
 	"net/http"
 	"time"
+	"unicode/utf8"
 )
 
 var (
@@ -18,55 +19,63 @@ var (
 var tp = make(map[string]*template.Template)
 
 func init() {
-
-}
-
-func Index(rw http.ResponseWriter, req *http.Request) {
-	tp, err := template.ParseFiles(viewPath + "index.html")
-	if err != nil {
-		panic(err)
+	f := [...]string{"index", "register", "login", "problem", "ranking"}
+	for _, s := range f {
+		t, err := template.ParseFiles(viewPath + s + ".html")
+		if err != nil {
+			panic(err)
+		}
+		tp[s] = t
 	}
+}
+func Index(rw http.ResponseWriter, req *http.Request) {
 	u, _ := auth.GetCookie(req)
-	err = tp.Execute(rw, u)
+	tp["index"].Execute(rw, u)
 }
 
 func Register(rw http.ResponseWriter, req *http.Request) {
-	tp, _ := template.ParseFiles(viewPath + "register.html")
+	t := tp["register"]
 	if req.PostFormValue("submit") != "" {
 		id := req.PostFormValue("id")
 		pass := req.PostFormValue("pass")
+		if !utf8.ValidString(id) {
+			t.Execute(rw, map[string]string{"Error": "IDはutf-8"})
+		}
+		if !utf8.ValidString(pass) {
+			t.Execute(rw, map[string]string{"Error": "PASSはutf-8"})
+		}
 		if id == "" {
-			tp.Execute(rw, map[string]string{"Error": "IDが空"})
+			t.Execute(rw, map[string]string{"Error": "IDが空"})
 			return
 		}
 		if pass == "" {
-			tp.Execute(rw, map[string]string{"Error": "Passが空"})
+			t.Execute(rw, map[string]string{"Error": "Passが空"})
 			return
 		}
 		err := auth.AddUser(id, pass)
 		if err != nil {
-			tp.Execute(rw, map[string]string{"Error": err.Error()})
+			t.Execute(rw, map[string]string{"Error": err.Error()})
 			return
 		}
 		auth.SetCookie(rw, id)
 		http.Redirect(rw, req, "/index.html", http.StatusFound)
 	}
-	tp.Execute(rw, nil)
+	t.Execute(rw, nil)
 }
 
 func Login(rw http.ResponseWriter, req *http.Request) {
-	tp, _ := template.ParseFiles(viewPath + "login.html")
+	t := tp["login"]
 	if req.PostFormValue("submit") != "" {
 		id := req.PostFormValue("id")
 		pass := req.PostFormValue("pass")
 		if !auth.AuthPass(id, pass) {
-			tp.Execute(rw, map[string]string{"Error": "認証失敗"})
+			t.Execute(rw, map[string]string{"Error": "認証失敗"})
 			return
 		}
 		auth.SetCookie(rw, id)
 		http.Redirect(rw, req, "/index.html", http.StatusFound)
 	}
-	tp.Execute(rw, nil)
+	t.Execute(rw, nil)
 }
 
 func Logout(rw http.ResponseWriter, req *http.Request) {
@@ -74,16 +83,13 @@ func Logout(rw http.ResponseWriter, req *http.Request) {
 	http.Redirect(rw, req, "/index.html", http.StatusFound)
 }
 
-var Start time.Time
-
 func Problem(rw http.ResponseWriter, req *http.Request) {
 	if time.Now().Before(Start) {
 		http.Error(rw, "まだコンテスト開始前です", http.StatusForbidden)
 		return
 	}
-	tp, _ := template.ParseFiles(viewPath + "problem.html")
 	u, _ := auth.GetCookie(req)
-	tp.Execute(rw, u)
+	tp["problem"].Execute(rw, u)
 }
 
 func Ranking(rw http.ResponseWriter, req *http.Request) {
@@ -91,19 +97,8 @@ func Ranking(rw http.ResponseWriter, req *http.Request) {
 		NotFound(rw, req)
 		return
 	}
-	tp, _ := template.ParseFiles(viewPath + "ranking.html")
 	r := rank.GetRanking()
-	tp.Execute(rw, r)
-}
-
-func History(rw http.ResponseWriter, req *http.Request) {
-	if time.Now().Before(Start) {
-		NotFound(rw, req)
-		return
-	}
-	tp, _ := template.ParseFiles(viewPath + "history.html")
-	h := GetHistory()
-	tp.Execute(rw, h)
+	tp["ranking"].Execute(rw, r)
 }
 
 func NotFound(rw http.ResponseWriter, req *http.Request) {

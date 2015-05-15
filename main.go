@@ -1,24 +1,17 @@
 package main
 
 import (
+	"fmt"
 	"github.com/yosupo06/runner/program/app"
-	"go/build"
+	"github.com/yosupo06/runner/program/config"
+	"github.com/yosupo06/runner/program/sample"
 	"net/http"
-	"time"
 )
 
-var basePath = build.Default.GOPATH + "/src/github.com/yosupo06/runner/"
-
 func main() {
-	var loc, _ = time.LoadLocation("Asia/Tokyo")
-	app.Start, _ = time.ParseInLocation(time.RFC3339,
-		"2015-05-24T21:00:00Z",
-		loc)
-	app.End, _ = time.ParseInLocation(time.RFC3339,
-		"2015-05-24T23:00:00Z",
-		loc)
 	http.Handle("/css/", http.StripPrefix("/css/",
-		http.FileServer(http.Dir(basePath+"views/css/"))))
+		http.FileServer(http.Dir(config.BasePath+"views/css/"))))
+	fmt.Println(config.BasePath + "views/css/")
 	http.HandleFunc("/index.html", app.Index)
 	http.HandleFunc("/register.html", app.Register)
 	http.HandleFunc("/login.html", app.Login)
@@ -30,5 +23,7 @@ func main() {
 	http.HandleFunc("/ranking", app.RankingApi)
 	http.HandleFunc("/info", app.InfoApi)
 	http.HandleFunc("/", app.NotFound)
+	http.HandleFunc("/sample/problem.html", sample.Problem)
+	http.HandleFunc("/sample/ranking.html", sample.Ranking)
 	http.ListenAndServe(":55001", nil)
 }

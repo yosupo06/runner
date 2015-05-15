@@ -1,19 +1,16 @@
 package rank
 
 import (
-	"fmt"
 	"sort"
 	"sync"
 )
 
-type Data struct {
-	Comment string
-	Point   int
-}
-
 var (
 	rm   = new(sync.Mutex)
-	rank = make(map[string]Data)
+	rank = make(map[string]struct {
+		Comment string
+		Point   int
+	})
 )
 
 func AddPoint(id string, p int) {
@@ -27,7 +24,6 @@ func AddPoint(id string, p int) {
 func ChangeComment(id, c string) {
 	rm.Lock()
 	defer rm.Unlock()
-	fmt.Println("change %s %s", id, c)
 	r := rank[id]
 	r.Comment = c
 	rank[id] = r
@@ -52,7 +48,6 @@ func GetRanking() []RankData {
 	for k, d := range rank {
 		r = append(r, RankData{k, d.Comment, d.Point})
 	}
-	//	rm.Unlock()
 	sort.Sort(sort.Reverse(ByPoint(r)))
 	return r
 }

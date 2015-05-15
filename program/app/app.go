@@ -3,8 +3,8 @@ package app
 import (
 	"fmt"
 	"github.com/yosupo06/runner/program/auth"
+	"github.com/yosupo06/runner/program/config"
 	"github.com/yosupo06/runner/program/rank"
-	"go/build"
 	"html/template"
 	"net/http"
 	"time"
@@ -12,8 +12,7 @@ import (
 )
 
 var (
-	basePath = build.Default.GOPATH + "/src/github.com/yosupo06/runner/"
-	viewPath = basePath + "views/app/"
+	viewPath = config.BasePath + "views/app/"
 )
 
 var tp = make(map[string]*template.Template)
@@ -84,7 +83,7 @@ func Logout(rw http.ResponseWriter, req *http.Request) {
 }
 
 func Problem(rw http.ResponseWriter, req *http.Request) {
-	if time.Now().Before(Start) {
+	if time.Now().Before(config.Start) {
 		http.Error(rw, "まだコンテスト開始前です", http.StatusForbidden)
 		return
 	}
@@ -93,7 +92,7 @@ func Problem(rw http.ResponseWriter, req *http.Request) {
 }
 
 func Ranking(rw http.ResponseWriter, req *http.Request) {
-	if time.Now().Before(Start) {
+	if time.Now().Before(config.Start) {
 		NotFound(rw, req)
 		return
 	}

@@ -70,16 +70,28 @@ func AddUser(id string, pass string) error {
 	return nil
 }
 
+var (
+	um      sync.Mutex
+	userBuf = make(map[string]User)
+)
+
 func GetUser(id string) (*User, bool) {
+	var u User
+	um.Lock()
+	defer um.Unlock()
+	u, ok := userBuf[id]
+	if ok {
+		return &u, true
+	}
 	ses := session.Copy()
 	defer ses.Close()
 
 	c := ses.DB("runner").C("user")
-	var u User
 	err := c.Find(bson.M{"id": id}).One(&u)
 	if err != nil {
 		return nil, false
 	}
+	userBuf[id] = u
 	return &u, true
 }
 

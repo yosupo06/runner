@@ -10,9 +10,14 @@ import (
 	"unicode/utf8"
 )
 
+type ChatD struct {
+	Id   string
+	Text string
+}
+
 var (
 	sm = new(sync.Mutex) //chat
-	st = make([]string, 0)
+	st = make([]ChatD, 0)
 )
 
 type TL struct {
@@ -47,6 +52,11 @@ func CommentApi(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 	c := req.FormValue("comment")
+	const ML = 1000
+	if len(c) > ML {
+		errorApi(rw, req, "Text too large")
+		return
+	}
 	if !utf8.ValidString(c) {
 		errorApi(rw, req, "Comment must be UTF-8")
 		return
@@ -74,6 +84,11 @@ func ChatApi(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 	c := req.FormValue("text")
+	const ML = 1000
+	if len(c) > ML {
+		errorApi(rw, req, "Text too large")
+		return
+	}
 	if !utf8.ValidString(c) {
 		errorApi(rw, req, "Text must be UTF-8")
 		return
@@ -89,9 +104,25 @@ func ChatApi(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	sm.Lock()
-	st = append(st, c)
+	st = append(st, ChatD{id, c})
+	rank.AddPoint(id, 1)
 	sm.Unlock()
 	t.Chat = n.Add(time.Second)
 	tl[id] = t
 	fmt.Fprintln(rw, "Success")
+}
+
+func GetChat() []ChatD {
+	sm.Lock()
+	const ML = 100
+	ml := ML
+	if len(st) < ml {
+		ml = len(st)
+	}
+	s := make([]ChatD, len(st))
+	for i := 0; i < ml; i++ {
+		s[i] = st[len(st)-1-i]
+	}
+	sm.Unlock()
+	return s
 }

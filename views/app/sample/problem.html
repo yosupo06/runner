@@ -13,18 +13,20 @@
 			<div class="pure-menu pure-menu-horizontal">
 				<a href="/index.html" class="pure-menu-heading pure-menu-link">Yosupo</a>
 				<span class="pure-menu-heading">Problem</span>
+				<a href="chat.html" class="pure-menu-heading pure-menu-link">Chat</a>
 				<a href="ranking.html" class="pure-menu-heading pure-menu-link">Ranking</a>
 			</div>
 		</header>
 		<section class="content">
-			{{if $}}
-			<p>Your ID: {{$.Id}}</p>
-			<p>Your Token: {{$.Token}}</p>
-			{{end}}
+			<p>Your ID: {{if $}}{{$.Id}}{{end}}</p>
+			<p>Your Token: {{if $}}{{$.Token}}{{end}}</p>
 
 			<p>練習ページです</p>
-			<p>http://comp.yosupo.com/test/comment?id={<p>
-			<p>http://comp.yosupo.com/test/<p>
+			<p>http://comp.yosupo.com/sample/comment?id=(Your ID)&amp;token=(Your Token)&amp;comment=(コメント)<p>
+			<p>でランキングのコメントを変更できます</p>
+			<p>http://comp.yosupo.com/sample/chat?id=(Your ID)&amp;token=(Your Token)&amp;chat=(コメント)<p>
+			<p>でチャットに投稿できます</p>
+			<p>APIごとに1秒制限があるので、同じAPIは1秒間待たないと弾かれるはずです</p>
 		</section>
 	</body>
 </html>

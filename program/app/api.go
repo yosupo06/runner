@@ -147,6 +147,10 @@ func CommentApi(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 	c := req.FormValue("comment")
+	const ML = 1000
+	if len(c) > ML {
+		return
+	}
 	if !utf8.ValidString(c) {
 		fmt.Fprintln(rw, "Comment must be UTF-8")
 	}

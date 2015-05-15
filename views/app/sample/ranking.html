@@ -12,12 +12,33 @@
 		<header>
 			<div class="pure-menu pure-menu-horizontal">
 				<a href="/index.html" class="pure-menu-heading pure-menu-link">Yosupo</a>
-				<a href="/problem.html" class="pure-menu-heading pure-menu-link">Problem</a>
+				<a href="problem.html" class="pure-menu-heading pure-menu-link">Problem</a>
+				<a href="chat.html" class="pure-menu-heading pure-menu-link">Chat</a>
 				<span class="pure-menu-heading">Ranking</span>
 			</div>
 		</header>
 		<section class="content">
 			<p>このランキングは不定期で爆破されます</p>
+			<table class="pure-table">
+				<thead>
+					<tr>
+						<th>#</th>
+						<th>Point</th>
+						<th>Name</th>
+						<th>Comment</th>
+					</tr>
+				</thead>
+				{{range $idx, $e := $}}
+				<tbody>
+					<tr>
+						<td>{{$idx}}</td>
+						<td>{{$e.Point}}</td>
+						<td>{{$e.Id}}</td>
+						<td>{{$e.Comment}}</td>
+					</tr>
+				</tbody>
+				{{end}}
+			</table>
 		</section>
 	</body>
 </html>

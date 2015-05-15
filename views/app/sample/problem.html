@@ -18,13 +18,13 @@
 			</div>
 		</header>
 		<section class="content">
-			<p>Your ID: {{if $}}{{$.Id}}{{end}}</p>
-			<p>Your Token: {{if $}}{{$.Token}}{{end}}</p>
+			<p>Your ID: {{if $}}{{$.Id}}{{else}}ログインしてください{{end}}</p>
+			<p>Your Token: {{if $}}{{$.Token}}{{else}}ログインしてください{{end}}</p>
 
 			<p>練習ページです</p>
 			<p>http://comp.yosupo.com/sample/comment?id=(Your ID)&amp;token=(Your Token)&amp;comment=(コメント)<p>
 			<p>でランキングのコメントを変更できます</p>
-			<p>http://comp.yosupo.com/sample/chat?id=(Your ID)&amp;token=(Your Token)&amp;chat=(コメント)<p>
+			<p>http://comp.yosupo.com/sample/chat?id=(Your ID)&amp;token=(Your Token)&amp;text=(コメント)<p>
 			<p>でチャットに投稿できます</p>
 			<p>APIごとに1秒制限があるので、同じAPIは1秒間待たないと弾かれるはずです</p>
 		</section>

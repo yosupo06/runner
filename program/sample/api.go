@@ -64,7 +64,6 @@ func CommentApi(rw http.ResponseWriter, req *http.Request) {
 
 	tm.Lock()
 	defer tm.Unlock()
-
 	t := tl[id]
 	if n.Before(t.Comm) {
 		errorApi(rw, req, "TLE")
@@ -119,7 +118,7 @@ func GetChat() []ChatD {
 	if len(st) < ml {
 		ml = len(st)
 	}
-	s := make([]ChatD, len(st))
+	s := make([]ChatD, ml)
 	for i := 0; i < ml; i++ {
 		s[i] = st[len(st)-1-i]
 	}

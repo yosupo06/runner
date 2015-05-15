@@ -43,6 +43,9 @@ func Register(rw http.ResponseWriter, req *http.Request) {
 		if !utf8.ValidString(pass) {
 			t.Execute(rw, map[string]string{"Error": "PASSはutf-8"})
 		}
+		if len(id) > auth.MaxLength {
+			t.Execute(rw, map[string]string{"Error": "IDが長すぎます"})
+		}
 		if id == "" {
 			t.Execute(rw, map[string]string{"Error": "IDが空"})
 			return
@@ -53,7 +56,7 @@ func Register(rw http.ResponseWriter, req *http.Request) {
 		}
 		err := auth.AddUser(id, pass)
 		if err != nil {
-			t.Execute(rw, map[string]string{"Error": err.Error()})
+			t.Execute(rw, map[string]string{"Error": "原因不明エラー"})
 			return
 		}
 		auth.SetCookie(rw, id)

@@ -19,6 +19,7 @@ type User struct {
 	Pass  []byte //must be salted
 }
 
+const MaxLength = 100
 const salt = "yazawanikoniko"
 
 var aesKey = []byte("nisikinomakimaki")
@@ -56,6 +57,9 @@ func hash(pass string) []byte {
 }
 
 func AddUser(id string, pass string) error {
+	if len(id) > MaxLength {
+		return errors.New("IDが長すぎます")
+	}
 	ses := session.Copy()
 	defer ses.Close()
 	c := ses.DB("runner").C("user")
@@ -66,7 +70,10 @@ func AddUser(id string, pass string) error {
 	if co != 0 {
 		return errors.New("このIDはもう使われています")
 	}
-	c.Insert(User{id, makeToken(), hash(pass)})
+	err = c.Insert(User{id, makeToken(), hash(pass)})
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

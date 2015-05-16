@@ -36,6 +36,7 @@ var (
 )
 
 func owner() {
+	gen := rand.New(rand.NewSource(time.Now().UnixNano()))
 	c := time.Tick(10 * time.Second)
 	for range c {
 		if time.Now().Before(config.Start) {
@@ -47,11 +48,11 @@ func owner() {
 			p = append(p, d)
 		}
 		for i := 0; i < rabNum; i++ {
-			p = append(p, rand.Intn(mp)+1)
+			p = append(p, gen.Intn(mp)+1)
 		}
 		sort.Sort(sort.Reverse(sort.IntSlice(p)))
 
-		rabNum = rand.Intn(len(price) + 1)
+		rabNum = gen.Intn(len(price) + 1)
 		lastB = 0
 		if len(p) != 0 {
 			lastB = p[len(p)/2] - 1
@@ -83,7 +84,6 @@ func owner() {
 }
 
 func init() {
-	rand.Seed(time.Now().UnixNano())
 	go owner()
 }
 
@@ -92,74 +92,83 @@ func getForm(req *http.Request) (string, string) {
 		req.FormValue("token")
 }
 
+func errorApi(rw http.ResponseWriter, req *http.Request, mes string) {
+	fmt.Fprintln(rw, "Error")
+	fmt.Fprintln(rw, mes)
+}
+
 func VoteApi(rw http.ResponseWriter, req *http.Request) {
-	if time.Now().Before(config.Start) {
+	n := time.Now()
+	if n.Before(config.Start) {
 		NotFound(rw, req)
 		return
 	}
-	if time.Now().After(config.End) {
-		fmt.Fprintln(rw, "Error")
-		fmt.Fprintln(rw, "Contest ended")
+	if n.After(config.End) {
+		errorApi(rw, req, "Contest ended")
 		return
 	}
 	id, token := getForm(req)
 	if !auth.AuthToken(id, token) {
-		fmt.Fprintln(rw, "Error")
-		fmt.Fprintln(rw, "Invalid Token")
+		errorApi(rw, req, "Invalid Token")
 		return
 	}
 	u, err := strconv.Atoi(req.FormValue("price"))
 	if err != nil {
-		fmt.Fprintln(rw, "Error")
-		fmt.Fprintln(rw, "Format Error(price)")
+		errorApi(rw, req, "Format Error(Price)")
 		return
 	}
 
 	tm.Lock()
 	defer tm.Unlock()
-	n := time.Now()
 	t := tl[id]
 	if n.Before(t.Vote) {
-		fmt.Fprintln(rw, "Error")
-		fmt.Fprintln(rw, "TLE")
+		errorApi(rw, req, "TLE")
 		return
 	}
 
 	pm.Lock()
 	defer pm.Unlock()
 	if u <= 0 || mp < u {
-		fmt.Fprintf(rw, "price must be in range [0, %d]", mp)
+		errorApi(rw, req, "Range Error(Price)")
 		return
 	}
 	price[id] = u
 	t.Vote = n.Add(time.Second)
 	tl[id] = t
+	fmt.Fprintln(rw, "Success")
 }
 
 func CommentApi(rw http.ResponseWriter, req *http.Request) {
-	if time.Now().Before(config.Start) {
+	n := time.Now()
+	if n.Before(config.Start) {
 		NotFound(rw, req)
+		return
+	}
+	if n.After(config.End) {
+		errorApi(rw, req, "Contest ended")
 		return
 	}
 	id, token := getForm(req)
 	if !auth.AuthToken(id, token) {
-		fmt.Fprintln(rw, "Invalid Token")
+		errorApi(rw, req, "Invalid Token")
 		return
 	}
 	c := req.FormValue("comment")
 	const ML = 1000
 	if len(c) > ML {
+		errorApi(rw, req, "Text too large")
 		return
 	}
 	if !utf8.ValidString(c) {
-		fmt.Fprintln(rw, "Comment must be UTF-8")
+		errorApi(rw, req, "Comment must be UTF-8")
+		return
 	}
 	tm.Lock()
 	defer tm.Unlock()
-	n := time.Now()
 	t := tl[id]
 	if n.Before(t.Comm) {
-		fmt.Fprintln(rw, "TLE")
+		errorApi(rw, req, "TLE")
+		return
 	}
 	rank.ChangeComment(id, req.FormValue("comment"))
 	t.Comm = n.Add(time.Second)
@@ -168,27 +177,31 @@ func CommentApi(rw http.ResponseWriter, req *http.Request) {
 }
 
 func InfoApi(rw http.ResponseWriter, req *http.Request) {
-	if time.Now().Before(config.Start) {
+	n := time.Now()
+	if n.Before(config.Start) {
 		NotFound(rw, req)
 		return
 	}
-	if time.Now().After(config.End) {
-		NotFound(rw, req)
+	if n.After(config.End) {
+		errorApi(rw, req, "Contest ended")
 		return
 	}
+
 	id, token := getForm(req)
 	if !auth.AuthToken(id, token) {
-		fmt.Fprintln(rw, "Invalid Token")
+		errorApi(rw, req, "Invalid Token")
 		return
 	}
+
 	tm.Lock()
 	defer tm.Unlock()
-	n := time.Now()
 	t := tl[id]
 	if n.Before(t.Info) {
-		fmt.Fprintln(rw, "TLE")
+		errorApi(rw, req, "TLE")
+		return
 	}
 	pm.Lock()
+	fmt.Fprintln(rw, "Success")
 	fmt.Fprintln(rw, votec)
 	fmt.Fprintln(rw, lastB)
 	fmt.Fprintln(rw, rabNum)
@@ -199,32 +212,35 @@ func InfoApi(rw http.ResponseWriter, req *http.Request) {
 }
 
 func RankingApi(rw http.ResponseWriter, req *http.Request) {
-	if time.Now().Before(config.Start) {
+	n := time.Now()
+	if n.Before(config.Start) {
 		NotFound(rw, req)
 		return
 	}
-	if time.Now().After(config.End) {
-		NotFound(rw, req)
+	if n.After(config.End) {
+		errorApi(rw, req, "Contest ended")
 		return
 	}
+
 	id, token := getForm(req)
 	if !auth.AuthToken(id, token) {
-		fmt.Fprintln(rw, "Invalid Token")
+		errorApi(rw, req, "Invalid Token")
 		return
 	}
+
 	tm.Lock()
 	defer tm.Unlock()
-	n := time.Now()
 	t := tl[id]
-	if n.Before(t.Info) {
-		fmt.Fprintln(rw, "TLE")
+	if n.Before(t.Rank) {
+		errorApi(rw, req, "TLE")
+		return
 	}
 	r := rank.GetRanking()
+	fmt.Fprintln(rw, "Success")
 	fmt.Fprintln(rw, len(r))
 	for _, d := range r {
 		fmt.Fprintln(rw, d.Point, d.Id)
 	}
 	t.Rank = n.Add(time.Second)
 	tl[id] = t
-	fmt.Fprintln(rw, "Success")
 }

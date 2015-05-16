@@ -1,19 +1,30 @@
 package config
 
 import (
+	"github.com/BurntSushi/toml"
 	"go/build"
 	"time"
 )
 
-var Start, End time.Time
 var BasePath = build.Default.GOPATH + "/src/github.com/yosupo06/runner/"
+var configPath = BasePath + "program/config/"
+
+var c struct {
+	Salt  string
+	Start time.Time
+	End   time.Time
+}
+
+var Salt string
+
+var Start, End time.Time
 
 func init() {
-	var loc, _ = time.LoadLocation("Asia/Tokyo")
-	Start, _ = time.ParseInLocation(time.RFC3339,
-		"2015-05-24T21:00:00Z",
-		loc)
-	End, _ = time.ParseInLocation(time.RFC3339,
-		"2015-05-24T23:00:00Z",
-		loc)
+	_, err := toml.DecodeFile(configPath+"config.toml", &c)
+	if err != nil {
+		panic(err)
+	}
+	Start = c.Start
+	End = c.End
+	Salt = c.Salt
 }

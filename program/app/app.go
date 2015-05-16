@@ -27,6 +27,7 @@ func init() {
 		tp[s] = t
 	}
 }
+
 func Index(rw http.ResponseWriter, req *http.Request) {
 	u, _ := auth.GetCookie(req)
 	tp["index"].Execute(rw, u)

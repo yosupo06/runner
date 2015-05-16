@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"errors"
+	"github.com/yosupo06/runner/program/config"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"math/big"
@@ -20,9 +21,7 @@ type User struct {
 }
 
 const MaxLength = 100
-const salt = "yazawanikoniko"
 
-var aesKey = []byte("nisikinomakimaki")
 var session *mgo.Session
 
 func init() {
@@ -52,7 +51,7 @@ func makeToken() string {
 }
 
 func hash(pass string) []byte {
-	a := sha256.Sum256([]byte(salt + pass))
+	a := sha256.Sum256([]byte(config.Salt + pass))
 	return a[:]
 }
 

@@ -7,6 +7,7 @@ import (
 	"github.com/yosupo06/runner/program/rank"
 	"html/template"
 	"net/http"
+	"regexp"
 	"time"
 	"unicode/utf8"
 )
@@ -40,12 +41,20 @@ func Register(rw http.ResponseWriter, req *http.Request) {
 		pass := req.PostFormValue("pass")
 		if !utf8.ValidString(id) {
 			t.Execute(rw, map[string]string{"Error": "IDはutf-8"})
+			return
+		}
+		matched, err := regexp.MatchString("^[[:graph:]]+$", id)
+		if !matched || err != nil {
+			t.Execute(rw, map[string]string{"Error": "IDは英数記号のみ"})
+			return
 		}
 		if !utf8.ValidString(pass) {
 			t.Execute(rw, map[string]string{"Error": "PASSはutf-8"})
+			return
 		}
 		if len(id) > auth.MaxLength {
 			t.Execute(rw, map[string]string{"Error": "IDが長すぎます"})
+			return
 		}
 		if id == "" {
 			t.Execute(rw, map[string]string{"Error": "IDが空"})
@@ -55,7 +64,7 @@ func Register(rw http.ResponseWriter, req *http.Request) {
 			t.Execute(rw, map[string]string{"Error": "Passが空"})
 			return
 		}
-		err := auth.AddUser(id, pass)
+		err = auth.AddUser(id, pass)
 		if err != nil {
 			t.Execute(rw, map[string]string{"Error": "原因不明エラー"})
 			return

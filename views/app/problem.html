@@ -17,11 +17,78 @@
 			</div>
 		</header>
 		<section class="content">
-			{{if $}}
-			<p>Your ID: {{$.Id}}</p>
-			<p>Your Token: {{$.Token}}</p>
-			{{end}}
-
+			<p>Your ID: {{if $}}{{$.Id}}{{else}}ログインしてください{{end}}</p>
+			<p>Your Token: {{if $}}{{$.Token}}{{else}}ログインしてください{{end}}</p>
+			
+			<h1>点取りゲーム</h1>
+			<p>このゲームの参加者は、プレイヤーとうさぎ(複数匹)です</p>
+			<p>このゲームは、フェーズを繰り返します。1フェーズ10秒です。</p>
+			<p>フェーズごとに、つまり10秒の間にあなたは1以上N以下の好きな数を投票できます。投票しなかった場合、そのフェーズには参加していないという扱いになります。</p>
+			<p>フェーズ終了時に、自分の投票した数が、参加者内での相対順位の半分より小さいとき、その数と同じだけの得点をもらえます</p>
+			<p>正確に言うと、自分の投票した数より大きい数を投票した人数が(全体の人数)/2以上の時、点数が貰えます</p>
+			<p>また、フェーズ終了時に、次のフェーズに参加するうさぎの数が決まります。参加する数の決め方は、0以上(そのフェーズに参加したプレイヤーの人数)以下の中から一様ランダムで決定されます。</p>
+			<p>うさぎは、それぞれ1以上N以下の数から一様ランダムに投票します。</p>
+			
+			<p>Nは、最初は100ですが上昇するかもしれません。</p>
+			<p>頑張って点数をできる限りたくさん集めてください</p>
+			
+			<h2>API説明</h2>
+			<p>すべてのAPIに共通して、そのAPIが成功した時は1行目にSuccess, 失敗した時はError, かつ2行目にエラーメッセージが帰ってきます</p>
+			
+			<h3>Vote</h3>
+			<p>http://comp.yosupo.com/vote?id=(Your ID)&amp;token=(Your Token)&amp;price=(1以上N以下の整数)<p>
+			<p>で投票できます。priceに投票したい数を入れてください</p>
+			
+			<h3>Info</h3>
+			<p>http://comp.yosupo.com/info?id=(Your ID)&amp;token=(Your Token)<p>
+			<p>でゲームの情報を得ることができます</p>
+			<p>4行からなるテキストが降ってくるはずです。</p>
+			<table class="pure-table">
+				<tbody>
+					<tr>
+						<td>1行目</td>
+						<td>Successという文字列</td>
+					</tr>
+					<tr>
+						<td>2行目</td>
+						<td>今何フェーズ目かを表す整数</td>
+					</tr>
+					<tr>
+						<td>3行目</td>
+						<td>1つの整数。これは前回のフェーズでこの数以下の数を投票した人は点数が貰えたことを表す</td>
+					</tr>
+					<tr>
+						<td>4行目</td>
+						<td>今回のフェーズに参加するうさぎの数</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<h3>Ranking</h3>
+			<p>http://comp.yosupo.com/ranking?id=(Your ID)&amp;token=(Your Token)<p>
+			<p>でランキングの情報を得ることができます</p>
+			<p>テキストが降ってきます</p>
+			<table class="pure-table">
+				<tbody>
+					<tr>
+						<td>1行目</td>
+						<td>Successという文字列</td>
+					</tr>
+					<tr>
+						<td>2行目</td>
+						<td>ランキングの人数N</td>
+					</tr>
+					<tr>
+						<td>3行目からN行</td>
+						<td>得点とIDが空白区切りで</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<h3>Comment</h3>
+			<p>http://comp.yosupo.com/comment?id=(Your ID)&amp;token=(Your Token)&amp;comment=(コメント)<p>
+			<p>でランキングのコメントを変更できます</p>
+			<p>APIごとにそれぞれ1秒制限があるので、同じAPIを1秒間待たずに打つと弾かれるはずです</p>
 		</section>
 	</body>
 </html>

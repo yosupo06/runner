@@ -48,14 +48,16 @@ func owner() {
 			p = append(p, d)
 		}
 		for i := 0; i < rabNum; i++ {
-			p = append(p, gen.Intn(mp)+1)
+			u := gen.Intn(mp) + 1
+			fmt.Println("Vote", "Rab", i, u)
+			p = append(p, u)
 		}
 		sort.Sort(sort.Reverse(sort.IntSlice(p)))
 
 		rabNum = gen.Intn(len(price) + 1)
 		lastB = 0
 		if len(p) != 0 {
-			lastB = p[len(p)/2] - 1
+			lastB = p[(len(p)+1)/2-1] - 1
 		}
 
 		type P struct {
@@ -118,6 +120,7 @@ func VoteApi(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	fmt.Println("Vote", id, u)
 	tm.Lock()
 	defer tm.Unlock()
 	t := tl[id]
@@ -204,6 +207,7 @@ func InfoApi(rw http.ResponseWriter, req *http.Request) {
 	fmt.Fprintln(rw, "Success")
 	fmt.Fprintln(rw, votec)
 	fmt.Fprintln(rw, lastB)
+	fmt.Fprintln(rw, mp)
 	fmt.Fprintln(rw, rabNum)
 	pm.Unlock()
 	t.Info = n.Add(time.Second)

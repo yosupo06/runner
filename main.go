@@ -5,9 +5,11 @@ import (
 	"github.com/yosupo06/runner/program/config"
 	"github.com/yosupo06/runner/program/sample"
 	"net/http"
+	"runtime"
 )
 
 func main() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	http.Handle("/css/", http.StripPrefix("/css/",
 		http.FileServer(http.Dir(config.BasePath+"views/css/"))))
 	http.HandleFunc("/index.html", app.Index)
